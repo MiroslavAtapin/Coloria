@@ -10,18 +10,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.example.coloria.Screens.StartScreen
-import com.example.coloria.Screens.WelcomeScreen
+import com.example.coloria.Screens.ColorMatchScreen
+import com.example.coloria.Screens.HomeScreen
 import com.example.coloria.ui.theme.ColoriaSpacing
 
 enum class Screen {
-    Start,
-    Welcome,
+    Home,
+    ColorMatch,
 }
 
 @Composable
 fun AppNavigation() {
-    var currentScreen by remember { mutableStateOf(Screen.Start) }
+    var currentScreen by remember { mutableStateOf(Screen.Home) }
 
     Box(
         modifier = Modifier
@@ -30,11 +30,14 @@ fun AppNavigation() {
             .padding(horizontal = ColoriaSpacing.screenHorizontal),
     ) {
         when (currentScreen) {
-            Screen.Start -> StartScreen(
-                onStartClick = { currentScreen = Screen.Welcome },
+            Screen.Home -> HomeScreen(
+                onGameOneClick = { currentScreen = Screen.ColorMatch },
+                onGameTwoClick = { },
             )
 
-            Screen.Welcome -> WelcomeScreen()
+            Screen.ColorMatch -> ColorMatchScreen(
+                onHomeClick = { currentScreen = Screen.Home },
+            )
         }
     }
 }

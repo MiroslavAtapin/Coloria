@@ -21,7 +21,7 @@ import com.example.coloria.ui.theme.ColoriaSpacing
 import com.example.coloria.ui.theme.ColoriaTheme
 
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(onAcceptClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -57,7 +57,7 @@ fun WelcomeScreen() {
 
         Button(
             text = "Принять",
-            onClick = {},
+            onClick = onAcceptClick,
             modifier = Modifier.padding(top = ColoriaSpacing.xxl),
         )
     }
@@ -66,5 +66,5 @@ fun WelcomeScreen() {
 @Preview(showBackground = true)
 @Composable
 fun WelcomeScreenPreview(){
-    WelcomeScreen()
+    WelcomeScreen(onAcceptClick = {})
 }

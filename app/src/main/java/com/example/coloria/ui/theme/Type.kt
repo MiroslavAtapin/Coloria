@@ -37,7 +37,7 @@ val HeadlineLargeStyle = TextStyle(
 /** 24 / 32, Medium */
 val HeadlineSmallStyle = TextStyle(
     fontFamily = MulishFamily,
-    fontWeight = FontWeight.Medium,
+    fontWeight = FontWeight.Bold,
     fontSize = 24.sp,
     lineHeight = 32.sp,
 )

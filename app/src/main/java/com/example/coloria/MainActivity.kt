@@ -7,21 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import com.example.coloria.Components.AppBar
-import com.example.coloria.Components.Button
-import com.example.coloria.Components.IconButton
-import com.example.coloria.ui.theme.ColoriaSpacing
 import com.example.coloria.ui.theme.ColoriaTheme
 
 class MainActivity : ComponentActivity() {
@@ -51,7 +36,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ColoriaTheme {
-                StartScreen()
+                AppNavigation()
             }
         }
     }
@@ -89,35 +74,4 @@ private fun Configuration.asLightConfiguration(): Configuration =
 /** Creates a context whose resources are permanently in light mode. */
 private fun Context.createLightConfigurationContext(): Context =
     createConfigurationContext(resources.configuration.asLightConfiguration())
-
-/**
- * Временный стартовый экран. Показывает фон и заголовок из дизайн-системы.
- * Заменить на реальный экран приложения.
- */
-@Composable
-private fun StartScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(ColoriaTheme.colors.backgroundPrimary),
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            AppBar(
-
-            )
-            IconButton(
-                onClick = {},
-                iconResId = R.drawable.ic_cup
-            )
-            Button(
-                onClick = {},
-                text = "Label"
-            )
-        }
-    }
-}
 

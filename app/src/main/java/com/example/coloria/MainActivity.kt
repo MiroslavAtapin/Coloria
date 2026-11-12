@@ -8,13 +8,19 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import com.example.coloria.Components.AppBar
+import com.example.coloria.Components.Button
+import com.example.coloria.Components.IconButton
 import com.example.coloria.ui.theme.ColoriaSpacing
 import com.example.coloria.ui.theme.ColoriaTheme
 
@@ -95,14 +101,23 @@ private fun StartScreen() {
             .fillMaxSize()
             .background(ColoriaTheme.colors.backgroundPrimary),
     ) {
-        Text(
-            text = "Coloria",
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = ColoriaSpacing.screenHorizontal),
-            style = ColoriaTheme.typography.headlineLarge,
-            color = ColoriaTheme.colors.textPrimary,
-        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            AppBar(
+
+            )
+            IconButton(
+                onClick = {},
+                iconResId = R.drawable.ic_cup
+            )
+            Button(
+                onClick = {},
+                text = "Label"
+            )
+        }
     }
 }
 

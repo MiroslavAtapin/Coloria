@@ -11,12 +11,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Coloria">
+
+        <!--
+            Portrait-only, light-theme-only activity.
+
+            * android:screenOrientation="portrait"  -> the UI never rotates to landscape and the
+              interface is never rebuilt horizontally (also survives the user's
+              auto-rotate / rotation-lock setting).
+            * android:configChanges ... uiMode       -> a system dark/light switch does not
+              recreate the activity; combined with the light-only Compose theme the appearance
+              can never change.
+            * android:windowSoftInputMode            -> keyboard resizes content instead of
+              overlapping it, keeping the 16 dp screen inset intact.
+        -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="uiMode|screenLayout|smallestScreenSize|screenSize|orientation|keyboardHidden"
             android:exported="true"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Coloria"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

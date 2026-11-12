@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Coloria" parent="android:Theme.Material.Light.NoActionBar" />
+    <!--
+        Coloria uses a single light theme.
+
+        Parent is a Light Material theme with no action bar; the app look itself comes from the
+        Compose design system (ui/theme), this style only pins platform-level behaviour:
+
+          * windowBackground  -> the palette background (#FAF9F5), so there is no white/black
+                                 flash before the first frame.
+          * windowLightStatusBar / windowLightNavigationBar -> dark system-bar icons, matching
+                                 a light surface, regardless of the device setting.
+          * forceDarkAllowed   -> false: disables Android's automatic "force dark" which would
+                                 otherwise recolor the UI when the system is in dark mode.
+          * isLightTheme       -> true: tells the platform this window is a light theme.
+          * colorAccent        -> accent-primary, used by system-drawn widgets (cursor, checkboxes).
+    -->
+    <style name="Theme.Coloria" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/color_background_primary</item>
+        <item name="android:colorBackground">@color/color_background_primary</item>
+        <item name="android:isLightTheme">true</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:colorAccent">@color/color_accent_primary</item>
+        <item name="android:colorControlActivated">@color/color_accent_primary</item>
+        <item name="android:colorControlHighlight">@color/color_accent_secondary</item>
+        <item name="android:textColorPrimary">@color/color_text_primary</item>
+        <item name="android:textColorSecondary">@color/color_text_secondary</item>
+    </style>
+
 </resources>

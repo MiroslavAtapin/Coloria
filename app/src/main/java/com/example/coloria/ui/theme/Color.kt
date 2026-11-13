@@ -47,6 +47,9 @@ object ColoriaPalette {
     /** Negative / error state (wrong answer, loss, destructive). */
     val StateBad = Color(0xFFD94F4F)
 
+    /** Soft success fill: background of the new-record capsule. */
+    val StateGoodSoft = Color(0xFFD9EAE1)
+
     // --- On-color helpers --------------------------------------------------
     /** Content placed on a strong accent or state color (e.g. text on [AccentPrimary]). */
     val OnAccent = Color(0xFFFFFFFF)
@@ -91,6 +94,7 @@ data class ColoriaColors(
     val textSecondary: Color = ColoriaPalette.TextSecondary,
     val border: Color = ColoriaPalette.Border,
     val stateGood: Color = ColoriaPalette.StateGood,
+    val stateGoodSoft: Color = ColoriaPalette.StateGoodSoft,
     val stateBad: Color = ColoriaPalette.StateBad,
     val onAccent: Color = ColoriaPalette.OnAccent,
     val shadowTint: Color = ColoriaPalette.ShadowTint,

@@ -40,7 +40,7 @@ private val HueColors = listOf(
 )
 
 private val SliderWidth = 24.dp
-private const val PickerAspectRatio = 250f / 160f
+private const val PickerAspectRatio = 250f / 180f
 
 @Composable
 fun ColorPicker(

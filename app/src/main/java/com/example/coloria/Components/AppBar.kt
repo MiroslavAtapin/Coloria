@@ -16,11 +16,21 @@ import com.example.coloria.R
 import com.example.coloria.ui.theme.ColoriaSpacing
 import com.example.coloria.ui.theme.ColoriaTheme
 
+/**
+ * Шапка экрана: число по центру, иконки по краям.
+ *
+ * @param soccer текущий стрик — крупное число по центру.
+ * @param record лучший результат — подпись под числом.
+ * @param isRecordBeaten рекорд побит: подпись скрывается, остаётся только [soccer].
+ * @param isRecordVisible показывать ли подпись рекорда; `false`, пока он ещё не прочитан с устройства.
+ */
 @Composable
 fun AppBar(
     modifier: Modifier = Modifier,
-    number: String = "1240",
-    label: String = "очки",
+    soccer: Int = 0,
+    record: Int = 0,
+    isRecordBeaten: Boolean = false,
+    isRecordVisible: Boolean = true,
     onLeftIconClick: () -> Unit = {},
     onRightIconClick: () -> Unit = {},
 ) {
@@ -39,27 +49,33 @@ fun AppBar(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = number,
+                text = soccer.toString(),
                 style = ColoriaTheme.typography.titleLarge,
-                color = ColoriaTheme.colors.textPrimary,
+                color = if (isRecordBeaten) {
+                    ColoriaTheme.colors.accentPrimary
+                } else {
+                    ColoriaTheme.colors.textPrimary
+                },
             )
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(ColoriaSpacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_cup),
-                    contentDescription = null,
-                    tint = ColoriaTheme.colors.textSecondary,
-                    modifier = Modifier.size(12.dp),
-                )
+            if (isRecordVisible && !isRecordBeaten) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(ColoriaSpacing.xs),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_cup),
+                        contentDescription = null,
+                        tint = ColoriaTheme.colors.textSecondary,
+                        modifier = Modifier.size(12.dp),
+                    )
 
-                Text(
-                    text = label,
-                    style = ColoriaTheme.typography.bodySmall,
-                    color = ColoriaTheme.colors.textSecondary,
-                )
+                    Text(
+                        text = "$record",
+                        style = ColoriaTheme.typography.bodySmall,
+                        color = ColoriaTheme.colors.textSecondary,
+                    )
+                }
             }
         }
 

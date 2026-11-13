@@ -14,15 +14,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.coloria.Components.AppBar
 import com.example.coloria.Components.Button
 import com.example.coloria.Components.ColorPicker
 import com.example.coloria.Components.GameCard
+import com.example.coloria.Components.RecordCapsule
 import com.example.coloria.ui.theme.ColoriaSpacing
 import com.example.coloria.ui.theme.ColoriaTheme
 import com.example.coloria.utils.CountdownTimer
+import com.example.coloria.utils.StreakState
 import com.example.coloria.utils.colorSimilarityPercent
+import com.example.coloria.utils.logRoundColors
+import com.example.coloria.utils.randomResultPhrase
 
 enum class ColorMatchStage {
     Memorize,
@@ -31,24 +36,49 @@ enum class ColorMatchStage {
 }
 
 @Composable
-fun ColorMatchScreen(onHomeClick: () -> Unit) {
+fun ColorMatchScreen(
+    onHomeClick: () -> Unit,
+    streak: StreakState,
+) {
     var targetColor by remember { mutableStateOf(randomColor()) }
     var stage by remember { mutableStateOf(ColorMatchStage.Memorize) }
     var pickedColor by remember { mutableStateOf(Color.White) }
     var similarityPercent by remember { mutableStateOf<Int?>(null) }
 
+    // Показывать ли капсулу о новом рекорде в текущем раунде результата.
+    var showRecordCapsule by remember { mutableStateOf(false) }
+
     fun startNewRound() {
         targetColor = randomColor()
         pickedColor = Color.White
         similarityPercent = null
+        showRecordCapsule = false
         stage = ColorMatchStage.Memorize
+    }
+
+    fun finishRound() {
+        val percent = colorSimilarityPercent(targetColor, pickedColor)
+        logRoundColors(target = targetColor, picked = pickedColor, similarityPercent = percent)
+        streak.applyRound(percent)
+        // Забираем событие до перехода в Result: в Compose LaunchedEffect на stage
+        // сработал бы раньше первого кадра и погасил флаг до отрисовки капсулы.
+        showRecordCapsule = streak.isRecordBeatenJustNow
+        streak.consumeRecordBeaten()
+        similarityPercent = percent
+        stage = ColorMatchStage.Result
     }
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        AppBar(onLeftIconClick = onHomeClick)
+        AppBar(
+            soccer = streak.soccer,
+            record = streak.record,
+            isRecordBeaten = streak.isRecordBeaten,
+            isRecordVisible = streak.isRecordLoaded,
+            onLeftIconClick = onHomeClick,
+        )
 
         Column(
             modifier = Modifier
@@ -65,6 +95,7 @@ fun ColorMatchScreen(onHomeClick: () -> Unit) {
                 ColorMatchStage.Result -> GameCard(
                     backgroundColor = pickedColor,
                     splitColor = targetColor,
+                    splitLabels = "Ваш\nвариант" to "Загаданный\nвариант",
                 )
             }
 
@@ -98,13 +129,40 @@ fun ColorMatchScreen(onHomeClick: () -> Unit) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
-                        contentAlignment = Alignment.Center,
+                        contentAlignment = Alignment.TopCenter,
                     ) {
-                        Text(
-                            text = "${similarityPercent ?: 0}%",
-                            style = ColoriaTheme.typography.headlineSmall,
-                            color = ColoriaTheme.colors.textPrimary,
-                        )
+                        val phrase = remember(similarityPercent) {
+                            randomResultPhrase(similarityPercent ?: 0)
+                        }
+
+                        // Капсула нового рекорда: локальный флаг раунда, сбрасывается в startNewRound.
+                        if (showRecordCapsule) {
+                            RecordCapsule(
+                                modifier = Modifier.padding(top = ColoriaSpacing.lg),
+                            )
+                        }
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.align(Alignment.Center),
+                        ) {
+                            Text(
+                                text = "${similarityPercent ?: 0}%",
+                                style = ColoriaTheme.typography.headlineLarge,
+                                color = ColoriaTheme.colors.textPrimary,
+                            )
+                            Text(
+                                text = phrase,
+                                style = ColoriaTheme.typography.bodyLarge,
+                                color = ColoriaTheme.colors.textSecondary,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(
+                                    top = ColoriaSpacing.sm,
+                                    start = ColoriaSpacing.lg,
+                                    end = ColoriaSpacing.lg,
+                                ),
+                            )
+                        }
                     }
                 }
 
@@ -112,8 +170,7 @@ fun ColorMatchScreen(onHomeClick: () -> Unit) {
                     text = if (stage == ColorMatchStage.Pick) "Проверить" else "Ещё раз",
                     onClick = {
                         if (stage == ColorMatchStage.Pick) {
-                            similarityPercent = colorSimilarityPercent(targetColor, pickedColor)
-                            stage = ColorMatchStage.Result
+                            finishRound()
                         } else {
                             startNewRound()
                         }
@@ -140,6 +197,9 @@ private fun randomColor(): Color = Color(
 @Preview(showBackground = true)
 @Composable
 fun ColorMatchPreview(){
-   ColorMatchScreen(onHomeClick = {})
+   ColorMatchScreen(
+       onHomeClick = {},
+       streak = remember { StreakState() },
+   )
 }
 

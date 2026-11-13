@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,7 +45,7 @@ fun IconButton(
                 }
             }
             .background(backgroundColor, shape)
-            .defaultMinSize(minWidth = 52.dp, minHeight = 52.dp)
+            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
             .clip(shape)
             .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
@@ -52,7 +53,8 @@ fun IconButton(
         androidx.compose.material3.Icon(
             painter = iconPainter,
             contentDescription = contentDescription,
-            tint = ColoriaTheme.colors.textPrimary
+            tint = ColoriaTheme.colors.textPrimary,
+            modifier = Modifier.size(24.dp),
         )
     }
 }

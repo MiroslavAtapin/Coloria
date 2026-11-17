@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -71,10 +72,26 @@ fun ColorPicker(
     BoxWithConstraints(modifier = modifier) {
         val sliderWidth = SliderWidth
         val gapWidth = ColoriaSpacing.md
-        val fieldWidth = maxWidth - sliderWidth - gapWidth
-        val fieldHeight = fieldWidth / PickerAspectRatio
 
-        Row {
+        // Размеры, которые даёт доступная ширина.
+        val widthByWidth = maxWidth - sliderWidth - gapWidth
+        val heightByWidth = widthByWidth / PickerAspectRatio
+
+        // Размеры, которые даёт доступная высота: она сейчас не учитывается,
+        // из-за чего на невысоких экранах пикер не влезает в Body.
+        val heightByHeight = maxHeight
+        val widthByHeight = heightByHeight * PickerAspectRatio
+
+        // Решает тот ограничитель, которого меньше: пропорции сохраняются,
+        // пикер никогда не выходит за пределы родителя.
+        val useHeight = widthByHeight < widthByWidth
+
+        val fieldWidth = if (useHeight) widthByHeight else widthByWidth
+        val fieldHeight = if (useHeight) heightByHeight else heightByWidth
+
+        Row(
+            modifier = Modifier.align(Alignment.Center),
+        ) {
         Box(
             modifier = Modifier
                 .height(fieldHeight)

@@ -21,7 +21,10 @@ private const val STREAK_DATASTORE_NAME = "coloria_streak"
  */
 private val Context.streakDataStore by preferencesDataStore(name = STREAK_DATASTORE_NAME)
 
-private val RECORD_KEY = intPreferencesKey("record")
+private const val DEFAULT_RECORD_KEY = "record"
+
+/** Ключ рекорда второй игры: у каждой игры свой счёт и свой рекорд. */
+const val COLOR_SPOT_RECORD_KEY = "record_color_spot"
 
 /** Источник сохранённого рекорда и приёмник его обновлений. */
 interface StreakStorage {
@@ -33,18 +36,23 @@ interface StreakStorage {
 }
 
 /** Хранит рекорд в DataStore. */
-class DataStoreStreakStorage(context: Context) : StreakStorage {
+class DataStoreStreakStorage(
+    context: Context,
+    recordKey: String = DEFAULT_RECORD_KEY,
+) : StreakStorage {
     private val dataStore = context.applicationContext.streakDataStore
+
+    private val key = intPreferencesKey(recordKey)
 
     override val recordFlow: Flow<Int> = dataStore.data
         .catch { cause ->
             // Повреждённый или недоступный файл не должен ронять игру.
             if (cause is IOException) emit(emptyPreferences()) else throw cause
         }
-        .map { prefs -> prefs[RECORD_KEY] ?: 0 }
+        .map { prefs -> prefs[key] ?: 0 }
 
     override suspend fun saveRecord(record: Int) {
-        dataStore.edit { prefs -> prefs[RECORD_KEY] = record }
+        dataStore.edit { prefs -> prefs[key] = record }
     }
 }
 

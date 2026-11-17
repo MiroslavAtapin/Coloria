@@ -1,5 +1,6 @@
 package com.example.coloria.Screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +30,8 @@ import com.example.coloria.utils.colorSimilarityPercent
 import com.example.coloria.utils.logRoundColors
 import com.example.coloria.utils.randomResultPhrase
 
+private val ContentInset = ColoriaSpacing.xxl + ColoriaSpacing.lg
+
 enum class ColorMatchStage {
     Memorize,
     Pick,
@@ -44,8 +47,6 @@ fun ColorMatchScreen(
     var stage by remember { mutableStateOf(ColorMatchStage.Memorize) }
     var pickedColor by remember { mutableStateOf(Color.White) }
     var similarityPercent by remember { mutableStateOf<Int?>(null) }
-
-    // Показывать ли капсулу о новом рекорде в текущем раунде результата.
     var showRecordCapsule by remember { mutableStateOf(false) }
 
     fun startNewRound() {
@@ -60,8 +61,6 @@ fun ColorMatchScreen(
         val percent = colorSimilarityPercent(targetColor, pickedColor)
         logRoundColors(target = targetColor, picked = pickedColor, similarityPercent = percent)
         streak.applyRound(percent)
-        // Забираем событие до перехода в Result: в Compose LaunchedEffect на stage
-        // сработал бы раньше первого кадра и погасил флаг до отрисовки капсулы.
         showRecordCapsule = streak.isRecordBeatenJustNow
         streak.consumeRecordBeaten()
         similarityPercent = percent
@@ -80,12 +79,10 @@ fun ColorMatchScreen(
             onLeftIconClick = onHomeClick,
         )
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .padding(top = ColoriaSpacing.lg),
-            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when (stage) {
                 ColorMatchStage.Memorize -> GameCard(backgroundColor = targetColor)
@@ -98,92 +95,89 @@ fun ColorMatchScreen(
                     splitLabels = "Ваш\nвариант" to "Загаданный\nвариант",
                 )
             }
+        }
 
-            if (stage == ColorMatchStage.Memorize) {
-                Box(
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            when (stage) {
+                ColorMatchStage.Memorize -> CountdownTimer(
+                    seconds = 2,
+                    onFinish = { stage = ColorMatchStage.Pick },
+                )
+
+                ColorMatchStage.Pick -> ColorPicker(
+                    onColorChange = { pickedColor = it },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CountdownTimer(
-                        seconds = 2,
-                        onFinish = { stage = ColorMatchStage.Pick },
-                    )
-                }
-            } else {
-                if (stage == ColorMatchStage.Pick) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(horizontal = ColoriaSpacing.xxl + ColoriaSpacing.lg),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        ColorPicker(
-                            onColorChange = { pickedColor = it },
-                        )
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        contentAlignment = Alignment.TopCenter,
-                    ) {
-                        val phrase = remember(similarityPercent) {
-                            randomResultPhrase(similarityPercent ?: 0)
-                        }
+                        .fillMaxSize()
+                        .padding(horizontal = ContentInset),
+                )
 
-                        // Капсула нового рекорда: локальный флаг раунда, сбрасывается в startNewRound.
-                        if (showRecordCapsule) {
-                            RecordCapsule(
-                                modifier = Modifier.padding(top = ColoriaSpacing.lg),
-                            )
-                        }
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.align(Alignment.Center),
-                        ) {
-                            Text(
-                                text = "${similarityPercent ?: 0}%",
-                                style = ColoriaTheme.typography.headlineLarge,
-                                color = ColoriaTheme.colors.textPrimary,
-                            )
-                            Text(
-                                text = phrase,
-                                style = ColoriaTheme.typography.bodyLarge,
-                                color = ColoriaTheme.colors.textSecondary,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(
-                                    top = ColoriaSpacing.sm,
-                                    start = ColoriaSpacing.lg,
-                                    end = ColoriaSpacing.lg,
-                                ),
-                            )
-                        }
-                    }
-                }
-
-                Button(
-                    text = if (stage == ColorMatchStage.Pick) "Проверить" else "Ещё раз",
-                    onClick = {
-                        if (stage == ColorMatchStage.Pick) {
-                            finishRound()
-                        } else {
-                            startNewRound()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = ColoriaSpacing.xxl + ColoriaSpacing.lg,
-                            end = ColoriaSpacing.xxl + ColoriaSpacing.lg,
-                            bottom = ColoriaSpacing.lg,
-                        ),
+                ColorMatchStage.Result -> ResultContent(
+                    percent = similarityPercent ?: 0,
+                    showRecordCapsule = showRecordCapsule,
                 )
             }
+        }
+
+        if (stage != ColorMatchStage.Memorize) {
+            Button(
+                text = if (stage == ColorMatchStage.Pick) "Проверить" else "Ещё раз",
+                onClick = {
+                    if (stage == ColorMatchStage.Pick) {
+                        finishRound()
+                    } else {
+                        startNewRound()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = ContentInset,
+                        end = ContentInset,
+                        top = ColoriaSpacing.sm,
+                        bottom = ColoriaSpacing.lg,
+                    ),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ResultContent(
+    percent: Int,
+    showRecordCapsule: Boolean,
+) {
+    val phrase = remember(percent) { randomResultPhrase(percent) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(ColoriaSpacing.lg),
+    ) {
+        if (showRecordCapsule) {
+            RecordCapsule()
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(ColoriaSpacing.sm),
+        ) {
+            Text(
+                text = "$percent%",
+                style = ColoriaTheme.typography.headlineLarge,
+                color = ColoriaTheme.colors.textPrimary,
+            )
+
+            Text(
+                text = phrase,
+                style = ColoriaTheme.typography.bodyLarge,
+                color = ColoriaTheme.colors.textSecondary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = ColoriaSpacing.lg),
+            )
         }
     }
 }
@@ -196,10 +190,9 @@ private fun randomColor(): Color = Color(
 
 @Preview(showBackground = true)
 @Composable
-fun ColorMatchPreview(){
-   ColorMatchScreen(
-       onHomeClick = {},
-       streak = remember { StreakState() },
-   )
+fun ColorMatchPreview() {
+    ColorMatchScreen(
+        onHomeClick = {},
+        streak = remember { StreakState() },
+    )
 }
-

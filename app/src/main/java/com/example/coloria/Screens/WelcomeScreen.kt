@@ -28,9 +28,9 @@ fun WelcomeScreen(onAcceptClick: () -> Unit) {
         verticalArrangement = Arrangement.Center,
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
+            painter = painterResource(id = R.drawable.app_icon),
             contentDescription = null,
-            modifier = Modifier.size(120.dp),
+            modifier = Modifier.size(160.dp),
         )
 
         Column(

@@ -6,8 +6,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +40,10 @@ import com.example.coloria.utils.logRoundColors
 import com.example.coloria.utils.randomResultPhrase
 
 private val ContentInset = ColoriaSpacing.xxl + ColoriaSpacing.lg
+
+private const val CountingBaseDurationMillis = 900
+private const val CountingPerPercentMillis = 12
+private const val DigitFadeMillis = 150
 
 enum class ColorMatchStage {
     Memorize,
@@ -146,12 +159,30 @@ fun ColorMatchScreen(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun ResultContent(
     percent: Int,
     showRecordCapsule: Boolean,
 ) {
     val phrase = remember(percent) { randomResultPhrase(percent) }
+    val animatedValue = remember { Animatable(0f) }
+    var displayedPercent by remember { mutableStateOf(0) }
+
+    LaunchedEffect(percent) {
+        animatedValue.snapTo(0f)
+        animatedValue.animateTo(
+            targetValue = percent.toFloat(),
+            animationSpec = tween(
+                durationMillis = CountingBaseDurationMillis +
+                    percent.coerceIn(0, 100) * CountingPerPercentMillis,
+                easing = FastOutSlowInEasing,
+            ),
+        ) {
+            displayedPercent = value.toInt()
+        }
+        displayedPercent = percent
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -165,11 +196,20 @@ private fun ResultContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(ColoriaSpacing.sm),
         ) {
-            Text(
-                text = "$percent%",
-                style = ColoriaTheme.typography.headlineLarge,
-                color = ColoriaTheme.colors.textPrimary,
-            )
+            AnimatedContent(
+                targetState = displayedPercent,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(DigitFadeMillis, easing = FastOutSlowInEasing)) togetherWith
+                        fadeOut(animationSpec = tween(DigitFadeMillis, easing = FastOutSlowInEasing))
+                },
+                label = "similarityPercent",
+            ) { value ->
+                Text(
+                    text = "$value%",
+                    style = ColoriaTheme.typography.headlineLarge,
+                    color = ColoriaTheme.colors.textPrimary,
+                )
+            }
 
             Text(
                 text = phrase,

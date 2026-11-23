@@ -33,6 +33,7 @@ import com.example.coloria.ui.theme.ColoriaShadowRenderer
 import com.example.coloria.ui.theme.ColoriaShadows
 import com.example.coloria.ui.theme.ColoriaSpacing
 import com.example.coloria.ui.theme.ColoriaTheme
+import com.example.coloria.utils.LocalSoundPlayer
 
 private const val CardAspectRatio = 338f / 200f
 
@@ -116,6 +117,7 @@ private fun GameEntryCard(
     onClick: () -> Unit,
 ) {
     val shape = RoundedCornerShape(CardCornerRadius)
+    val soundPlayer = LocalSoundPlayer.current
 
     Box(
         modifier = Modifier
@@ -132,7 +134,13 @@ private fun GameEntryCard(
                 }
             }
             .clip(shape)
-            .clickable(role = Role.Button, onClick = onClick),
+            .clickable(
+                role = Role.Button,
+                onClick = {
+                    soundPlayer.playSelect()
+                    onClick()
+                },
+            ),
     ) {
         Image(
             painter = painterResource(id = backgroundRes),

@@ -20,6 +20,7 @@ import com.example.coloria.ui.theme.ColoriaRadii
 import com.example.coloria.ui.theme.ColoriaShadowRenderer
 import com.example.coloria.ui.theme.ColoriaShadows
 import com.example.coloria.ui.theme.ColoriaTheme
+import com.example.coloria.utils.LocalSoundPlayer
 
 @Composable
 fun Button(
@@ -29,6 +30,7 @@ fun Button(
 ) {
     val backgroundColor = ColoriaTheme.colors.accentPrimary
     val shape = RoundedCornerShape(ColoriaRadii.Maximal)
+    val soundPlayer = LocalSoundPlayer.current
 
     Box(
         modifier = modifier
@@ -45,7 +47,13 @@ fun Button(
             .background(backgroundColor, shape)
             .defaultMinSize(minHeight = 48.dp)
             .clip(shape)
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(
+                role = Role.Button,
+                onClick = {
+                    soundPlayer.playSelect()
+                    onClick()
+                },
+            )
             .padding(PaddingValues(horizontal = 56.dp)),
         contentAlignment = Alignment.Center,
     ) {

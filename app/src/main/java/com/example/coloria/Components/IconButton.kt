@@ -19,6 +19,7 @@ import com.example.coloria.ui.theme.ColoriaRadii
 import com.example.coloria.ui.theme.ColoriaShadowRenderer
 import com.example.coloria.ui.theme.ColoriaShadows
 import com.example.coloria.ui.theme.ColoriaTheme
+import com.example.coloria.utils.LocalSoundPlayer
 
 @Composable
 fun IconButton(
@@ -29,6 +30,7 @@ fun IconButton(
 ) {
     val backgroundColor = ColoriaTheme.colors.backgroundSurface
     val shape = CircleShape
+    val soundPlayer = LocalSoundPlayer.current
 
     val iconPainter: Painter = painterResource(id = iconResId)
 
@@ -47,7 +49,13 @@ fun IconButton(
             .background(backgroundColor, shape)
             .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
             .clip(shape)
-            .clickable(role = Role.Button, onClick = onClick),
+            .clickable(
+                role = Role.Button,
+                onClick = {
+                    soundPlayer.playSelect()
+                    onClick()
+                },
+            ),
         contentAlignment = Alignment.Center,
     ) {
         androidx.compose.material3.Icon(

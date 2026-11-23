@@ -8,6 +8,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.coloria.ui.theme.ColoriaTheme
+import com.example.coloria.utils.SoundsProvider
 
 class MainActivity : ComponentActivity() {
 
@@ -25,7 +26,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ColoriaTheme {
-                AppNavigation()
+                SoundsProvider {
+                    AppNavigation()
+                }
             }
         }
     }

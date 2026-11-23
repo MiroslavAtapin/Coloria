@@ -51,16 +51,10 @@ fun AppNavigation() {
             }
         }
     }
-
-    // Стрик и рекорд живут выше экрана игры, поэтому не сбрасываются при выходе на главную.
-    // DataStore требует долгоживущий scope — remember даёт область на всё время жизни навигации.
     val streak = remember {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         StreakState(storage = DataStoreStreakStorage(context), scope = scope)
     }
-
-    // У второй игры свой счёт и свой рекорд — отдельный ключ в том же DataStore,
-    // иначе результат одной игры подменял бы рекорд другой.
     val spotStreak = remember {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         StreakState(

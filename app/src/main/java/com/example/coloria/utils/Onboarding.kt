@@ -17,16 +17,16 @@ private val Context.onboardingDataStore by preferencesDataStore(name = ONBOARDIN
 
 private val WELCOME_SHOWN_KEY = booleanPreferencesKey("is_welcome_shown")
 
-/** Хранит факт показа приветственного экрана. */
+
 interface OnboardingStorage {
-    /** `true`, если приветственный экран уже был показан на этом устройстве. */
+
     val isWelcomeShownFlow: Flow<Boolean>
 
-    /** Запоминает, что приветственный экран показан. */
+
     suspend fun markWelcomeShown()
 }
 
-/** Хранит флаг приветственного экрана в DataStore. */
+
 class DataStoreOnboardingStorage(context: Context) : OnboardingStorage {
     private val dataStore = context.applicationContext.onboardingDataStore
 
@@ -41,7 +41,7 @@ class DataStoreOnboardingStorage(context: Context) : OnboardingStorage {
     }
 }
 
-/** Хранит флаг в памяти: для превью и тестов. */
+
 class InMemoryOnboardingStorage(private var isShown: Boolean = false) : OnboardingStorage {
     override val isWelcomeShownFlow: Flow<Boolean> = flowOf(isShown)
 

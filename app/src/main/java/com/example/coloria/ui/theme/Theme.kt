@@ -8,13 +8,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 
-/**
- * Material color scheme.
- *
- * Material3 is used purely as a component/plumbing layer: it is force-fed the Coloria palette
- * so the app's own look is never Material-driven. There is intentionally **no** `darkColorScheme`
- * in this project — the app has a single light theme and ignores the system dark setting.
- */
+
 private val ColoriaLightColorScheme = lightColorScheme(
     primary = ColoriaPalette.AccentPrimary,
     onPrimary = ColoriaPalette.OnAccent,
@@ -48,24 +42,13 @@ private val ColoriaLightColorScheme = lightColorScheme(
 
     error = ColoriaPalette.StateBad,
     onError = ColoriaPalette.OnAccent,
-
-    // Deliberately neutral: the app is flat, overlays are not tinted by Material.
     scrim = Color.Black,
     inverseSurface = ColoriaPalette.TextPrimary,
     inverseOnSurface = ColoriaPalette.BackgroundPrimary,
     inversePrimary = ColoriaPalette.AccentSecondary,
 )
 
-/**
- * The one and only app theme.
- *
- * Deliberately has **no** `darkTheme` / `dynamicColor` parameters: the theme never reacts to
- * the system dark mode, to Material You / dynamic colors, or to the device's wallpaper colors.
- *
- * Provides:
- *  - [ColoriaTheme.colors] — semantic color tokens for app code
- *  - `MaterialTheme.colorScheme/typography/shapes` — the same tokens, for Material components
- */
+
 @Composable
 fun ColoriaTheme(
     content: @Composable () -> Unit,
@@ -86,28 +69,16 @@ fun ColoriaTheme(
     }
 }
 
-/**
- * Token accessor, Compose-style:
- * ```
- * Text(
- *     text = "Hi",
- *     color = ColoriaTheme.colors.textPrimary,
- *     style = ColoriaTheme.typography.titleLarge,
- * )
- * ```
- * Like `MaterialTheme`, the design system exposes a single name: the [ColoriaTheme] object below
- * is the token reader, and the `ColoriaTheme { }` composable (same name, different namespace)
- * installs the theme.
- */
+
 object ColoriaTheme {
 
-    /** Semantic colors of the (always light) Coloria theme. */
+
     val colors: ColoriaColors
         @Composable
         @ReadOnlyComposable
         get() = LocalColoriaColors.current
 
-    /** The eight approved text styles, all in Mulish. */
+
     val typography: ColoriaTextStyles
         @Composable
         @ReadOnlyComposable

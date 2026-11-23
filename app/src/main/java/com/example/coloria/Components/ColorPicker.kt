@@ -72,18 +72,10 @@ fun ColorPicker(
     BoxWithConstraints(modifier = modifier) {
         val sliderWidth = SliderWidth
         val gapWidth = ColoriaSpacing.md
-
-        // Размеры, которые даёт доступная ширина.
         val widthByWidth = maxWidth - sliderWidth - gapWidth
         val heightByWidth = widthByWidth / PickerAspectRatio
-
-        // Размеры, которые даёт доступная высота: она сейчас не учитывается,
-        // из-за чего на невысоких экранах пикер не влезает в Body.
         val heightByHeight = maxHeight
         val widthByHeight = heightByHeight * PickerAspectRatio
-
-        // Решает тот ограничитель, которого меньше: пропорции сохраняются,
-        // пикер никогда не выходит за пределы родителя.
         val useHeight = widthByHeight < widthByWidth
 
         val fieldWidth = if (useHeight) widthByHeight else widthByWidth

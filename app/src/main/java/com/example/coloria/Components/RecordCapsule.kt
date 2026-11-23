@@ -22,12 +22,7 @@ import com.example.coloria.ui.theme.ColoriaShadows
 import com.example.coloria.ui.theme.ColoriaSpacing
 import com.example.coloria.ui.theme.ColoriaTheme
 
-/**
- * Капсула-уведомление о новом рекорде.
- *
- * Заливка [ColoriaTheme.colors.stateGoodSoft], текст [ColoriaTheme.colors.stateGood],
- * форма — максимальный радиус из дизайн-системы.
- */
+
 @Composable
 fun RecordCapsule(
     modifier: Modifier = Modifier,

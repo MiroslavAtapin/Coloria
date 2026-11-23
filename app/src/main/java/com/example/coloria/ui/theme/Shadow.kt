@@ -14,16 +14,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-// ===========================================================================
-// Shadow tokens
-// ===========================================================================
 
-/**
- * A single Figma drop-shadow layer.
- *
- * Mirrors the Figma fields 1:1: [x]/[y] offsets, [blur] (Figma "blur"), [spread] (Figma
- * "spread", may be negative) and [color] (alpha/opacity already baked in).
- */
 data class ColoriaShadowLayer(
     val x: Dp = 0.dp,
     val y: Dp = 0.dp,
@@ -32,14 +23,14 @@ data class ColoriaShadowLayer(
     val color: Color = ColoriaPalette.ShadowColor,
 )
 
-/** A complete Figma drop shadow, made of one or more stacked [ColoriaShadowLayer]s. */
+
 data class ColoriaShadow(
     val layers: List<ColoriaShadowLayer>,
 ) {
     val isVisible: Boolean get() = layers.isNotEmpty()
 }
 
-/** Shadow tokens — the only shadows allowed in the app. */
+
 object ColoriaShadows {
 
     private fun layer(y: Dp, blur: Dp, spread: Dp) = ColoriaShadowLayer(
@@ -50,10 +41,7 @@ object ColoriaShadows {
         color = ColoriaPalette.ShadowColor,
     )
 
-    /**
-     * Figma "small":
-     * `x0 y6 blur12 spread-6 #18274B 12%` + `x0 y8 blur24 spread-4 #18274B 12%`.
-     */
+
     val Small = ColoriaShadow(
         layers = listOf(
             layer(y = 6.dp, blur = 12.dp, spread = (-6).dp),
@@ -61,10 +49,7 @@ object ColoriaShadows {
         ),
     )
 
-    /**
-     * Figma "medium":
-     * `x0 y8 blur18 spread-6 #18274B 12%` + `x0 y12 blur42 spread-4 #18274B 12%`.
-     */
+
     val Medium = ColoriaShadow(
         layers = listOf(
             layer(y = 8.dp, blur = 18.dp, spread = (-6).dp),
@@ -72,45 +57,16 @@ object ColoriaShadows {
         ),
     )
 
-    /** No shadow. */
+
     val None = ColoriaShadow(layers = emptyList())
 }
 
-// ===========================================================================
-// Shadow rendering
-// ===========================================================================
 
-/**
- * Renders the Coloria shadow system on a canvas.
- *
- * ### Figma → Android mapping
- *
- * | Figma parameter | Android implementation |
- * |-----------------|------------------------|
- * | `x`, `y`        | `Paint.setShadowLayer` dx/dy — exact |
- * | `blur`          | `Paint.setShadowLayer` radius — exact |
- * | `color` @ `12%` | ARGB handed to `setShadowLayer` — exact |
- * | `spread`        | no native equivalent → emulated with [BlurMaskFilter] |
- *
- * `spread` is the only parameter Android lacks. The design uses **negative** spread only (the
- * shadow is slightly *smaller* than the element: it hides beneath it, leaving a soft ring).
- * A negative spread is geometrically the same as a smaller blur sigma, which [BlurMaskFilter]
- * reproduces exactly, so the rendered result matches the Figma preview.
- *
- * Layers are drawn largest-blur-first, so the tighter layer sits on top — the same stacking
- * order Figma uses.
- */
 internal object ColoriaShadowRenderer {
 
     private const val MIN_BLUR_DP = 0.01f
 
-    /**
-     * @param size            element size in px (local canvas coordinates start at 0,0)
-     * @param cornerRadiusPx  element corner radius in px
-     * @param shadow          the token to render
-     * @param shapeColor      element fill, replays the shadow rings so the element itself
-     *                        is painted by the caller afterwards
-     */
+
     fun DrawScope.drawShadow(
         size: Size,
         cornerRadiusPx: Float,
@@ -140,7 +96,6 @@ internal object ColoriaShadowRenderer {
             val native = Paint().asFrameworkPaint().apply { isAntiAlias = true }
 
             if (spreadPx < 0f) {
-                // Negative spread → shrink the soft edge by |spread| px.
                 native.color = layer.color.toArgb()
                 native.maskFilter = BlurMaskFilter(
                     ((blurPx + spreadPx) / 2f).coerceAtLeast(minBlurPx),
@@ -158,9 +113,6 @@ internal object ColoriaShadowRenderer {
                     native.maskFilter = BlurMaskFilter(spreadPx / 2f, BlurMaskFilter.Blur.NORMAL)
                 }
             }
-
-            // The shadow is cast by the shape's own fill; the caller draws the real element
-            // right after, so the caster is fully covered.
             drawIntoCanvas { canvas -> canvas.nativeCanvas.drawPath(androidPath, native) }
 
             native.clearShadowLayer()

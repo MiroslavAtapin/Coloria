@@ -16,14 +16,7 @@ import com.example.coloria.R
 import com.example.coloria.ui.theme.ColoriaSpacing
 import com.example.coloria.ui.theme.ColoriaTheme
 
-/**
- * Шапка экрана: число по центру, иконки по краям.
- *
- * @param soccer текущий стрик — крупное число по центру.
- * @param record лучший результат — подпись под числом.
- * @param isRecordBeaten рекорд побит: подпись скрывается, остаётся только [soccer].
- * @param isRecordVisible показывать ли подпись рекорда; `false`, пока он ещё не прочитан с устройства.
- */
+
 @Composable
 fun AppBar(
     modifier: Modifier = Modifier,

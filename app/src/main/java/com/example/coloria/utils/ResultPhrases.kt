@@ -1,14 +1,6 @@
 package com.example.coloria.utils
 
-/**
- * Encouraging phrases shown under the similarity percentage on the result stage.
- *
- * The phrases are grouped into bands by [colorSimilarityPercent] value. A band is picked by
- * scanning from the best score downwards, then one phrase is chosen at random inside it.
- *
- * Call sites must remember the returned phrase (keyed by the percentage) so that plain
- * recompositions do not reroll it.
- */
+
 fun randomResultPhrase(percent: Int): String = when {
     percent >= 95 -> PerfectPhrases
     percent >= 85 -> GreatPhrases
@@ -18,7 +10,7 @@ fun randomResultPhrase(percent: Int): String = when {
     else -> HardPhrases
 }.random()
 
-/** 95–100% — practically perfect. */
+
 private val PerfectPhrases = listOf(
     "Вот это глазомер!",
     "Да ты чувствуешь цвет!",
@@ -30,7 +22,7 @@ private val PerfectPhrases = listOf(
     "Это было практически идеально!",
 )
 
-/** 85–94% — very close. */
+
 private val GreatPhrases = listOf(
     "Вау, вот это результат!",
     "Ты явно знаешь толк в цветах!",
@@ -42,7 +34,7 @@ private val GreatPhrases = listOf(
     "У тебя отличный глаз!",
 )
 
-/** 75–84% — good. */
+
 private val GoodPhrases = listOf(
     "Ого, неплохо!",
     "Ты на правильном пути!",
@@ -54,7 +46,7 @@ private val GoodPhrases = listOf(
     "Ещё немного — и идеально!",
 )
 
-/** 60–74% — not bad, but room to grow. */
+
 private val DecentPhrases = listOf(
     "Уже что-то получается!",
     "Не так уж далеко!",
@@ -66,7 +58,7 @@ private val DecentPhrases = listOf(
     "Цвет оказался хитрее!",
 )
 
-/** 40–59% — middle of the road. */
+
 private val AveragePhrases = listOf(
     "Не сдавайся!",
     "Попробуй ещё раз!",
@@ -78,7 +70,7 @@ private val AveragePhrases = listOf(
     "Цвет немного тебя перехитрил.",
 )
 
-/** 0–39% — a tough round. */
+
 private val HardPhrases = listOf(
     "Этот цвет тебя запутал!",
     "Ну, зато было интересно!",

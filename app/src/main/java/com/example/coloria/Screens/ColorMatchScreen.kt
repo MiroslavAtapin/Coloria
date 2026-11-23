@@ -1,3 +1,4 @@
+
 package com.example.coloria.Screens
 
 import androidx.compose.foundation.layout.Arrangement
@@ -6,11 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -41,9 +37,8 @@ import com.example.coloria.utils.randomResultPhrase
 
 private val ContentInset = ColoriaSpacing.xxl + ColoriaSpacing.lg
 
-private const val CountingBaseDurationMillis = 900
-private const val CountingPerPercentMillis = 12
-private const val DigitFadeMillis = 150
+private const val CountingBaseDurationMillis = 400
+private const val CountingPerPercentMillis = 5
 
 enum class ColorMatchStage {
     Memorize,
@@ -61,16 +56,22 @@ fun ColorMatchScreen(
     var pickedColor by remember { mutableStateOf(Color.White) }
     var similarityPercent by remember { mutableStateOf<Int?>(null) }
     var showRecordCapsule by remember { mutableStateOf(false) }
+    var roundFinished by remember { mutableStateOf(false) }
 
     fun startNewRound() {
         targetColor = randomColor()
         pickedColor = Color.White
         similarityPercent = null
         showRecordCapsule = false
+        roundFinished = false
         stage = ColorMatchStage.Memorize
     }
 
     fun finishRound() {
+        if (stage != ColorMatchStage.Pick || roundFinished) return
+
+        roundFinished = true
+
         val percent = colorSimilarityPercent(targetColor, pickedColor)
         logRoundColors(target = targetColor, picked = pickedColor, similarityPercent = percent)
         streak.applyRound(percent)
@@ -159,7 +160,6 @@ fun ColorMatchScreen(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun ResultContent(
     percent: Int,
@@ -170,17 +170,20 @@ private fun ResultContent(
     var displayedPercent by remember { mutableStateOf(0) }
 
     LaunchedEffect(percent) {
+        displayedPercent = 0
         animatedValue.snapTo(0f)
+
         animatedValue.animateTo(
             targetValue = percent.toFloat(),
             animationSpec = tween(
                 durationMillis = CountingBaseDurationMillis +
-                    percent.coerceIn(0, 100) * CountingPerPercentMillis,
+                        percent.coerceIn(0, 100) * CountingPerPercentMillis,
                 easing = FastOutSlowInEasing,
             ),
         ) {
             displayedPercent = value.toInt()
         }
+
         displayedPercent = percent
     }
 
@@ -196,20 +199,11 @@ private fun ResultContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(ColoriaSpacing.sm),
         ) {
-            AnimatedContent(
-                targetState = displayedPercent,
-                transitionSpec = {
-                    fadeIn(animationSpec = tween(DigitFadeMillis, easing = FastOutSlowInEasing)) togetherWith
-                        fadeOut(animationSpec = tween(DigitFadeMillis, easing = FastOutSlowInEasing))
-                },
-                label = "similarityPercent",
-            ) { value ->
-                Text(
-                    text = "$value%",
-                    style = ColoriaTheme.typography.headlineLarge,
-                    color = ColoriaTheme.colors.textPrimary,
-                )
-            }
+            Text(
+                text = "$displayedPercent%",
+                style = ColoriaTheme.typography.headlineLarge,
+                color = ColoriaTheme.colors.textPrimary,
+            )
 
             Text(
                 text = phrase,

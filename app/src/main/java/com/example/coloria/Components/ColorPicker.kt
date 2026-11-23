@@ -41,7 +41,7 @@ private val HueColors = listOf(
 )
 
 private val SliderWidth = 24.dp
-private const val PickerAspectRatio = 250f / 180f
+private const val PickerAspectRatio = 1.5f
 
 @Composable
 fun ColorPicker(
@@ -72,14 +72,19 @@ fun ColorPicker(
     BoxWithConstraints(modifier = modifier) {
         val sliderWidth = SliderWidth
         val gapWidth = ColoriaSpacing.md
-        val widthByWidth = maxWidth - sliderWidth - gapWidth
-        val heightByWidth = widthByWidth / PickerAspectRatio
-        val heightByHeight = maxHeight
-        val widthByHeight = heightByHeight * PickerAspectRatio
-        val useHeight = widthByHeight < widthByWidth
+        val verticalInset = 20.dp
+        val maxFieldWidth = 360.dp
 
-        val fieldWidth = if (useHeight) widthByHeight else widthByWidth
-        val fieldHeight = if (useHeight) heightByHeight else heightByWidth
+        val availableWidth = maxWidth - sliderWidth - gapWidth
+        val availableHeight = maxHeight - verticalInset * 2
+
+        val fieldWidth = minOf(
+            availableWidth,
+            availableHeight * PickerAspectRatio,
+            maxFieldWidth,
+        )
+
+        val fieldHeight = fieldWidth / PickerAspectRatio
 
         Row(
             modifier = Modifier.align(Alignment.Center),

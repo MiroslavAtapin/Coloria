@@ -36,6 +36,7 @@ import com.example.coloria.ui.theme.ColoriaShadows
 import com.example.coloria.ui.theme.ColoriaShapes
 import com.example.coloria.ui.theme.ColoriaSpacing
 import com.example.coloria.ui.theme.ColoriaTheme
+import com.example.coloria.utils.LocalHaptics
 import com.example.coloria.utils.LocalSoundPlayer
 import com.example.coloria.utils.StreakState
 import com.example.coloria.utils.colorSimilarityPercent
@@ -69,6 +70,7 @@ fun ColorSpotScreen(
     var pickedIndex by remember { mutableStateOf<Int?>(null) }
     var showRecordCapsule by remember { mutableStateOf(false) }
     val soundPlayer = LocalSoundPlayer.current
+    val haptics = LocalHaptics.current
 
     fun startRound(roundNumber: Int) {
         round = roundNumber
@@ -94,11 +96,17 @@ fun ColorSpotScreen(
         if (index == spotIndex) {
             streak.applyRound(WIN_PERCENT)
             showRecordCapsule = streak.isRecordBeatenJustNow
-            if (showRecordCapsule) soundPlayer.playStreak()
+            if (showRecordCapsule) {
+                soundPlayer.playStreak()
+                haptics.record()
+            } else {
+                haptics.success()
+            }
             streak.consumeRecordBeaten()
             nextRound()
         } else {
             streak.applyRound(LOSE_PERCENT)
+            haptics.error()
             pickedIndex = index
             stage = ColorSpotStage.Lost
         }

@@ -19,6 +19,7 @@ import com.example.coloria.ui.theme.ColoriaRadii
 import com.example.coloria.ui.theme.ColoriaShadowRenderer
 import com.example.coloria.ui.theme.ColoriaShadows
 import com.example.coloria.ui.theme.ColoriaTheme
+import com.example.coloria.utils.LocalHaptics
 import com.example.coloria.utils.LocalSoundPlayer
 
 @Composable
@@ -31,6 +32,7 @@ fun IconButton(
     val backgroundColor = ColoriaTheme.colors.backgroundSurface
     val shape = CircleShape
     val soundPlayer = LocalSoundPlayer.current
+    val haptics = LocalHaptics.current
 
     val iconPainter: Painter = painterResource(id = iconResId)
 
@@ -53,6 +55,7 @@ fun IconButton(
                 role = Role.Button,
                 onClick = {
                     soundPlayer.playSelect()
+                    haptics.press()
                     onClick()
                 },
             ),

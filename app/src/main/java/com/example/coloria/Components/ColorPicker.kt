@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.example.coloria.ui.theme.ColoriaRadii
 import com.example.coloria.ui.theme.ColoriaSpacing
+import com.example.coloria.utils.LocalHaptics
 
 private val HueColors = listOf(
     Color(0xFFFF0000),
@@ -42,6 +43,22 @@ private val HueColors = listOf(
 
 private val SliderWidth = 24.dp
 private const val PickerAspectRatio = 1.5f
+private const val DragSelectionIntervalMs = 80L
+
+
+private class SelectionThrottle(private val minIntervalMs: Long) {
+
+    private var lastEmitMs = 0L
+
+
+    fun shouldEmit(): Boolean {
+        val now = android.os.SystemClock.uptimeMillis()
+        if (now - lastEmitMs < minIntervalMs) return false
+        lastEmitMs = now
+        return true
+    }
+}
+
 
 @Composable
 fun ColorPicker(
@@ -53,20 +70,29 @@ fun ColorPicker(
     var sliderSize by remember { mutableStateOf(IntSize.Zero) }
     var sliderPosition by remember { mutableStateOf(0f) }
     var hueColor by remember { mutableStateOf(Color.Red) }
+    val haptics = LocalHaptics.current
+    val dragThrottle = remember { SelectionThrottle(DragSelectionIntervalMs) }
 
     val cornerRadius = RoundedCornerShape(ColoriaRadii.Small)
     val markerColor = Color.White
     val markerShadow = Color.Black.copy(alpha = 0.4f)
 
-    fun updateColor(position: Offset) {
-        if (fieldSize.width == 0 || fieldSize.height == 0) return
-        onColorChange(colorAt(position, fieldSize, hueColor))
+    fun notifySelection(fromDrag: Boolean) {
+        if (!fromDrag || dragThrottle.shouldEmit()) {
+            haptics.selection()
+        }
     }
 
-    fun updateHue(positionY: Float) {
+    fun updateColor(position: Offset, fromDrag: Boolean) {
+        if (fieldSize.width == 0 || fieldSize.height == 0) return
+        onColorChange(colorAt(position, fieldSize, hueColor))
+        notifySelection(fromDrag)
+    }
+
+    fun updateHue(positionY: Float, fromDrag: Boolean) {
         sliderPosition = positionY
         hueColor = hueAt(positionY, sliderSize)
-        updateColor(fieldPosition)
+        updateColor(fieldPosition, fromDrag)
     }
 
     BoxWithConstraints(modifier = modifier) {
@@ -98,13 +124,13 @@ fun ColorPicker(
                 .pointerInput(hueColor) {
                     detectTapGestures { offset ->
                         fieldPosition = clampToField(offset, fieldSize)
-                        updateColor(fieldPosition)
+                        updateColor(fieldPosition, fromDrag = false)
                     }
                 }
                 .pointerInput(hueColor) {
                     detectDragGestures { change, _ ->
                         fieldPosition = clampToField(change.position, fieldSize)
-                        updateColor(fieldPosition)
+                        updateColor(fieldPosition, fromDrag = true)
                     }
                 },
         ) {
@@ -142,12 +168,12 @@ fun ColorPicker(
                 .onSizeChanged { sliderSize = it }
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
-                        updateHue(offset.y.coerceIn(0f, sliderSize.height.toFloat()))
+                        updateHue(offset.y.coerceIn(0f, sliderSize.height.toFloat()), fromDrag = false)
                     }
                 }
                 .pointerInput(Unit) {
                     detectDragGestures { change, _ ->
-                        updateHue(change.position.y.coerceIn(0f, sliderSize.height.toFloat()))
+                        updateHue(change.position.y.coerceIn(0f, sliderSize.height.toFloat()), fromDrag = true)
                     }
                 },
         ) {

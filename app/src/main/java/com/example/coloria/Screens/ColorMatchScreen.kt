@@ -30,7 +30,9 @@ import com.example.coloria.Components.RecordCapsule
 import com.example.coloria.ui.theme.ColoriaSpacing
 import com.example.coloria.ui.theme.ColoriaTheme
 import com.example.coloria.utils.CountdownTimer
+import com.example.coloria.utils.LocalHaptics
 import com.example.coloria.utils.LocalSoundPlayer
+import com.example.coloria.utils.STREAK_STEP_PERCENT
 import com.example.coloria.utils.StreakState
 import com.example.coloria.utils.colorSimilarityPercent
 import com.example.coloria.utils.logRoundColors
@@ -59,6 +61,7 @@ fun ColorMatchScreen(
     var showRecordCapsule by remember { mutableStateOf(false) }
     var roundFinished by remember { mutableStateOf(false) }
     val soundPlayer = LocalSoundPlayer.current
+    val haptics = LocalHaptics.current
 
     fun startNewRound() {
         targetColor = randomColor()
@@ -78,7 +81,16 @@ fun ColorMatchScreen(
         logRoundColors(target = targetColor, picked = pickedColor, similarityPercent = percent)
         streak.applyRound(percent)
         showRecordCapsule = streak.isRecordBeatenJustNow
-        if (showRecordCapsule) soundPlayer.playStreak()
+        when {
+            showRecordCapsule -> {
+                soundPlayer.playStreak()
+                haptics.record()
+            }
+
+            percent >= STREAK_STEP_PERCENT -> haptics.success()
+
+            else -> haptics.error()
+        }
         streak.consumeRecordBeaten()
         similarityPercent = percent
         stage = ColorMatchStage.Result
